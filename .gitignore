@@ -24,7 +24,7 @@ dist/
 # Pycharm editor settings
 .idea
 
-# VS code 
+# VS code
 .vscode
 
 # MacOS
@@ -41,3 +41,9 @@ predictions
 # hidden folder for aml configs
 .azureml
 .git
+
+# Diffusemation specific
+/manopth
+/src/modeling/data/Mano.zip
+/src/modeling/data/mano_v1_2
+/.history

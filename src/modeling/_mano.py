@@ -1,16 +1,17 @@
 """
 This file contains the MANO defination and mesh sampling operations for MANO mesh
 
-Adapted from opensource projects 
-MANOPTH (https://github.com/hassony2/manopth) 
+Adapted from opensource projects
+MANOPTH (https://github.com/hassony2/manopth)
 Pose2Mesh (https://github.com/hongsukchoi/Pose2Mesh_RELEASE)
-GraphCMR (https://github.com/nkolot/GraphCMR/) 
+GraphCMR (https://github.com/nkolot/GraphCMR/)
 """
 
 from __future__ import division
 import numpy as np
 import torch
 import torch.nn as nn
+import os
 import os.path as osp
 import json
 import code
@@ -22,12 +23,15 @@ class MANO(nn.Module):
     def __init__(self):
         super(MANO, self).__init__()
 
-        self.mano_dir = 'src/modeling/data'
+        self.mano_dir = osp.join(
+            os.path.dirname(__file__),
+            'data',
+        )
         self.layer = self.get_layer()
         self.vertex_num = 778
         self.face = self.layer.th_faces.numpy()
         self.joint_regressor = self.layer.th_J_regressor.numpy()
-        
+
         self.joint_num = 21
         self.joints_name = ('Wrist', 'Thumb_1', 'Thumb_2', 'Thumb_3', 'Thumb_4', 'Index_1', 'Index_2', 'Index_3', 'Index_4', 'Middle_1', 'Middle_2', 'Middle_3', 'Middle_4', 'Ring_1', 'Ring_2', 'Ring_3', 'Ring_4', 'Pinky_1', 'Pinky_2', 'Pinky_3', 'Pinky_4')
         self.skeleton = ( (0,1), (0,5), (0,9), (0,13), (0,17), (1,2), (2,3), (3,4), (5,6), (6,7), (7,8), (9,10), (10,11), (11,12), (13,14), (14,15), (15,16), (17,18), (18,19), (19,20) )
@@ -86,18 +90,18 @@ def scipy_to_pytorch(A, U, D):
     """Convert scipy sparse matrices to pytorch sparse matrix."""
     ptU = []
     ptD = []
-    
+
     for i in range(len(U)):
         u = scipy.sparse.coo_matrix(U[i])
         i = torch.LongTensor(np.array([u.row, u.col]))
         v = torch.FloatTensor(u.data)
         ptU.append(torch.sparse.FloatTensor(i, v, u.shape))
-    
+
     for i in range(len(D)):
         d = scipy.sparse.coo_matrix(D[i])
         i = torch.LongTensor(np.array([d.row, d.col]))
         v = torch.FloatTensor(d.data)
-        ptD.append(torch.sparse.FloatTensor(i, v, d.shape)) 
+        ptD.append(torch.sparse.FloatTensor(i, v, d.shape))
 
     return ptU, ptD
 

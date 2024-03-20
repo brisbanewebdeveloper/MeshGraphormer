@@ -4,6 +4,8 @@ import torch.nn.functional as F
 import numpy as np
 import scipy.sparse
 import math
+import os
+
 
 class SparseMM(torch.autograd.Function):
     """Redefine sparse @ dense matrix multiplication to enable backpropagation.
@@ -34,6 +36,7 @@ def gelu(x):
         Also see https://arxiv.org/abs/1606.08415
     """
     return x * 0.5 * (1.0 + torch.erf(x / math.sqrt(2.0)))
+
 
 class BertLayerNorm(torch.nn.Module):
     def __init__(self, hidden_size, eps=1e-12):
@@ -128,14 +131,46 @@ class GraphConvolution(torch.nn.Module):
         self.in_features = in_features
         self.out_features = out_features
 
-        if mesh=='body':
-            adj_indices = torch.load('./src/modeling/data/smpl_431_adjmat_indices.pt')
-            adj_mat_value = torch.load('./src/modeling/data/smpl_431_adjmat_values.pt')
-            adj_mat_size = torch.load('./src/modeling/data/smpl_431_adjmat_size.pt')
-        elif mesh=='hand':
-            adj_indices = torch.load('./src/modeling/data/mano_195_adjmat_indices.pt')
-            adj_mat_value = torch.load('./src/modeling/data/mano_195_adjmat_values.pt')
-            adj_mat_size = torch.load('./src/modeling/data/mano_195_adjmat_size.pt')
+        root_path = os.path.join(os.path.dirname(__file__))
+
+        if mesh == 'body':
+            adj_indices = torch.load(
+                os.path.join(
+                    root_path,
+                    'data/smpl_431_adjmat_indices.pt',
+                )
+            )
+            adj_mat_value = torch.load(
+                os.path.join(
+                    root_path,
+                    'data/smpl_431_adjmat_values.pt'
+                )
+            )
+            adj_mat_size = torch.load(
+                os.path.join(
+                    root_path,
+                    'data/smpl_431_adjmat_size.pt'
+                )
+            )
+        elif mesh == 'hand':
+            adj_indices = torch.load(
+                os.path.join(
+                    root_path,
+                    'data/mano_195_adjmat_indices.pt'
+                )
+            )
+            adj_mat_value = torch.load(
+                os.path.join(
+                    root_path,
+                    'data/mano_195_adjmat_values.pt'
+                )
+            )
+            adj_mat_size = torch.load(
+                os.path.join(
+                    root_path,
+                    'data/mano_195_adjmat_size.pt'
+                )
+            )
 
         self.adjmat = torch.sparse_coo_tensor(adj_indices, adj_mat_value, size=adj_mat_size).to(device)
 
